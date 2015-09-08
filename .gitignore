@@ -1,6 +1,6 @@
-### - - - - - - - - - - - - - - 
-### TOME: CAREFUL this is just a quick draft, need to validate syntax!!!
-### - - - - - - - - - - - - - - 
+### - - - - - - - - - - - - - - - - - - 
+### Mostly excluding node modules here
+### - - - - - - - - - - - - - - - - - -
 
 # demo is mostly using CDNs so skip all but localstorage
 js/lib/*
