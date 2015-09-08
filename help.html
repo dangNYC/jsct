@@ -1,0 +1,99 @@
+<div id="helpHTMLWrapper" style="padding:8px 18px;max-width:640px;margin:0 auto"> 
+   
+  <h2>JavaScript Code Tracker <span id="jsctAbbr" style="font-weight:normal;font-size:.9em">(JSCT)</span></h2>  
+  <div id="firstUseContent" style="display:none;margin-bottom:22px;">      
+    <p><span class="hiliteText">Welcome!</span> It looks like this is your first visit with this browser. To get you started several  Backbone-related items have been created and added to the db. You can edit, delete, or add to these items.</p>
+  </div>    
+   
+  <div style="border: 1px solid green; border-bottom:none; background-color:#ffffcc;padding:10px;margin-top:10px;">
+    <h3 style="margin:0 0 9px 0;font-size:1.1em">tl;dr</h3> 
+      <p class=pseudoBullet>&#10003;<span class=pseudoBulletContent>this application demos basic features of SPAs and Backbone</span></p>
+      <p class=pseudoBullet>&#10003;<span class=pseudoBulletContent>it's targeted at intermediate JavaScript developers new to Backbone</span></p>
+      <p class=pseudoBullet>&#10003;<span class=pseudoBulletContent>commented  code accessible via developer tools like Chrome devtools or Firebug</span> </p>
+      <p class=pseudoBullet>&#10003;<span class=pseudoBulletContent>detailed info on architecture and more in  <a target="_blank" href="/primers/JSCT_SPA_Backbone_demo_app.php">JSCT Overview post</a></span></p>
+  </div> 
+  <div style="border: 1px solid green; background-color:#FFCCFF;padding:10px;">       
+    <p class=pseudoBullet>&#10003;<span class=pseudoBulletContent>this isn't a "real" application, just a vehicle for exploring Backbone</span></p>
+    <p class=pseudoBullet>&#10003;<span class=pseudoBulletContent>requires modern browsers with HTML5, CSS3, localStorage, and Flexbox support</span></p>
+    <p class=pseudoBullet>&#10003;<span class=pseudoBulletContent>uses localStorage as its data store, which means <em>all data is specific to a browser instance</em> (i.e. different db for each browser)</span></p>   
+  </div>   
+    
+  <h3>JSCT Overview</h3>
+  <p>This application demonstrates features of <a target="_blank" href="http://en.wikipedia.org/wiki/Single-page_application">Single Page Applications</a> 
+  (SPAs) and the <a target="_blank" href="http://backbonejs.org/">Backbone</a> MV* architecture lib.</p>
+  
+  <p>The code and associated <a  target="_blank"  href="/primers/JSCT_SPA_Backbone_demo_app.php">JSCT Overview post</a> are targeted at intermediate JavaScript programmers just getting started with Backbone. </p>
+  
+  <p class="listLeader">As with Addy Osmani's <a target="_blank" href="http://todomvc.com/examples/backbone/">TodoMVC Backbone sample application</a> (which JSCT builds upon) some fundamental Backbone functionality is  demo'd here: </p>
+    <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>seperation of model and view via Backbone classes Model, View, Collection</span></p>
+    <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>loose coupling through built-in Backbone events</span></p>
+    <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>application navigation/bookmarking through Backbone Router</span></p>
+    <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>CRUD through Backbone methods <em>create</em>, <em>fetch</em>, <em>save</em>, <em>destroy</em>, etc.</span></p>  
+
+<p class="listLeader">In addition, some more general JavaScript application principles are demonstrated:</p>    
+    <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>general good coding practices such as loose coupling via pubsub, use of templates, use of an application namespace, etc.</span></p>    
+    <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>responsive design to handle browser resize and mobile browsers</span></p>
+    <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>localStorage is used to save/restore user sessions</span></p>
+        
+ <p>As with the Backbone TodoMVC sample application app you should NOT consider this a model Backbone app &#8212;  this demo app is very simple and uses implementations that might not scale well in large, real-world applications.  </p>
+   
+<p class="commentBox" style="background-color:#FFCCFF">   NOTE: This demo app is written for modern browsers and doesn't polyfill missing features into older browsers. Specifically, it requires browser support for HTML5, CSS3, JS ES5 and localStorage. It also uses scrolling divs (i.e. CSS  overflow:scroll, so not supported on Android 2.x stock browser) and it also uses Flexbox (lack of support is mostly IE9 and earlier).</p> 
+  
+  <p>For general info on this demo app see <a target="_blank" href="/primers/JSCT_SPA_Backbone_demo_app.php#_jsct_overview">Application Overview</a> section of my JSCT Overview post.</p> 
+  
+ <p> To browse the database  use the <a href="#home">list view</a>. From list view you can select an item to view/modify.</p>      
+ 
+  <h3>Application purpose and features</h3>
+  <p>On the surface JSCT's purpose is to  help you keep track of coding tips and traps, sample code, useful sample applications, etc.  However, it's really just a vehicle for exploring Backbone.  In that regard it's similar to the very useful <a href="http://todomvc.com/examples/backbone/" target="_blank">TodoMVC Backbone sample application</a>, letting you see a simple Backbone application in action while providing well commented source code and an in-depth description of the application architecture.  In fact JSCT uses the TodoMVC application as its model and starting point, extending it and in some places restructuring it to demo more Backbone features.  </p>
+
+ <p class="commentBox" style="background-color: #ffffcc">If you're a total Backbone noob you should start with the TodoMVC sample application, it's simpler than JSCT so is better for grok'ing the fundamentals. Moreover, Osmani has an in-depth analysis of TodoMVC in <a target="_blank" href="http://addyosmani.github.io/backbone-fundamentals/">his online Backbone book</a>.</p>
+  
+  <p>As with the TodoMVC Backbone sample app, this JS Code Tracker (JSCT) demo app lets you do CRUD on a simple dataset. In the TODOs demo app you work with a list of tasks, here the data is focused on keeping track of coding tips and traps, sample applications, etc.   
+  </p>
+  
+  <p>This demo app also uses more views and more nested views than the TODOs demo app, makes greater uses of Backbone routing, and throws in some other architectural pieces like an application model, use of pubsub, and some crude use of state machine. 
+  </p>
+  
+  <p>For info on this demo app's Architecture see my JSCT Overview post's <a target="_blank" href="/primers/JSCT_SPA_Backbone_demo_app.php#_jsct_architecture">Architecture section</a>.</p>
+  
+  <h3>Usage notes</h3>  
+  <p  class="listLeader">Here's what JSCT lets you do<strong>...</strong></p>
+  <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>store and manage info on coding related tips, techniques, useful sites (these are the "tracks" of JSCT)</span></p>
+  <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>display summary list of items or display all details for a single item</span></p>
+  <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>categorize items and filter visible items by content and category</span></p>
+  <p class=pseudoBullet>&#10027;<span class=pseudoBulletContent>tag items for quick access and display only tagged items</span></p>
+<br/>
+<p><strong>...</strong>and here's how you do it:</p>
+
+  <h4>View navigation</h4>
+  <p class="snug">use icon buttons at upper right and your browser Back and Forward buttons. On smaller screens a 'home' button will appear at upper left</p>
+  
+  <h4>List view (home view)</h4>
+  <p class="snug">shows all data in a scrollable list. This list can be filtered using criteria you enter on the filterBar  (see next item)</p> 
+  <h4>Filter Bar</h4>
+  <p class="snug">Near the top of the screen is a group of contols that let you subset the data.  You can subset by a case-insensitive string search and/or by type (described below) and/or by tagged status (see next item)
+  </p>
+  
+  <h4>Tagging items</h4>
+  <p class="snug">in the scrollable list you can tag an item for quick access by selecting its 'star'. Use the FilterBar to show only 'starred' items.</p>
+  
+  <h4>Browse/Edit</h4>
+  <p class="snug">to view or edit data for an item click its green arrow button in list view </p>
+  
+  <h4>Create new item</h4>
+  <p class="snug">use the '+' button at upper right to create an item. URLs you enter must use full valid format including the 'http://'. </p>
+  
+  <h4>CodeTrack Types </h4>
+ <p style="margin:0 0 0 5px"> Items are categorized as follows:</p>
+  <p class="snug"><span class="codeTrackType">tip</span>: smart coding practices, shortcuts, etc.</p>
+  <p class="snug"><span class="codeTrackType">trap</span>: dumb coding practices, gotchas, antipatterns, etc.</p>
+  <p class="snug"><span class="codeTrackType">bookmark</span>: functionally the same as a browser bookmark </p>
+  <p class="snug"><span class="codeTrackType">demo app</span>: specialized bookmark - for live demo of features, techniques, etc.</p>
+  <p class="snug"><span class="codeTrackType">other</span>: catchall (a 'real' app might allow user-defined categories)</p>
+
+  <p class="commentBox" style="background-color: #ffffcc">Usage notes are also summarized in the first item of the sample data.</p>
+  
+ <p> To browse the database use the <a href="#home">list view</a>. From list view you can select an item to view/modify.</p>
+ <br/><br/>
+  
+</div>

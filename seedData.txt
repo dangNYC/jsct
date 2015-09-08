@@ -1,0 +1,157 @@
+﻿[
+ 
+ { "title": "JSCT UI Quick Reference" ,
+	"descrip": "The ostensible purpose of this simple little demo app is to help you keep track of application development tips, traps, sample code, etc. Here's how you do it...\n\nNAVIGATION:\nuse icon buttons at upper right corner. Also browser Back and Forward buttons. On smaller screens a 'home' button will appear at upper left\n\nLIST VIEW:\nshows all data in a scrollable list. This list can be filtered using criteria you enter on the FilterBar (see next item). In side-by-side layout the list view is always visible in the left pane.\n\nFILTER BAR:\nlets you subset the data by a case-insensitive string search and/or by type (described below) and/or by tagged status (see next item)\n\nTAGGING ITEMS:\nin the scrollable list you can tag an item for quick access by selecting its 'star'. Use the FilterBar to show only 'starred' items.\n\nBROWSE/EDIT:\nto view or edit data for an item  click its green arrow button in list view \n\nCREATE NEW ITEM:\nuse the '+' button at upper right\n\nTRACK TYPES:\n • TIP - smart coding practices, shortcuts, etc.\n • TRAP - dumb coding practices, gotchas, antipatterns, etc.\n • BOOKMARK - functionally the same as a browser bookmark\n • DEMO APP - specialized bookmark - for live demo of features, techniques, etc.\n • OTHER - catchall (a 'real' app might allow user-defined categories)" ,
+	"url": "http://www.dlgsoftware.com/primers/JSCT_SPA_Backbone_demo_app.php" ,
+	"type": "other" ,
+	"tagged": true 
+ }	,
+
+ { "title": "Addy Osmani Backbone book" ,
+	"descrip": "Addy Osmani's book 'Developing Backbone.js Applications' is excellent and available free online (see URL above) or for purchase from O'Reilly. It includes an in-depth explanation of how the TodoMVC Backbone TODO demo app is architected." ,
+	"url": "http://addyosmani.github.io/backbone-fundamentals/" ,
+	"type": "bookmark" ,
+	"tagged": true
+ }	,
+ 
+ { "title": "TodoMVC Demo Apps" ,
+	"descrip": "The TodoMVC site lets you see a variety of JS architectural libs and frameworks in action, from Backbone to Angular to Ember.  For each lib or framework there's an implementation of the classic 'TODO' app. Its Backbone implementation is a great starting point for Backbone noobs since its architecture and Backbone basics are covered in-depth in Addy Osmani's book 'Developing Backbone.js Applications'" ,
+	"url": "http://todomvc.com/" ,
+	"type": "demoapp" ,
+	"tagged": false 
+ }	,
+ 
+ { "title": "Backbone annotated code" ,
+	"descrip": "The Backbone code is available in docco 2-column format with concise commentary on very readable code" ,
+	"url": "http://documentcloud.github.io/backbone/docs/backbone.html" ,
+	"type": "bookmark" ,
+	"tagged": false 
+ }	,
+
+{ "title": "Backbone Wiki" ,
+	"descrip": "Jeremy Ashkenas github for Backbone has a wiki with links to a primer, list of plugins, tutorials, demos, and more. Very useful." ,
+	"url": "https://github.com/jashkenas/backbone/wiki" ,
+	"type": "bookmark" ,
+	"tagged": false 
+ }	,
+  
+ { "title": "Selecting child elements of a view" ,
+	"descrip": "At times a Backbone view or some of its children may exist but be off the DOM.  This affects how the view can select its elements.  For off-DOM elements simple jQuery selectors won't work because jQuery's default context is the DOM, so simple selectors 'see' only elements on the DOM. As a result, the code below won't work if the #viewChild element isn't on the DOM: \n   var $aChild = $('#viewChild'); \n\nOne solution is to supply explicit context for the search. For Backbone views this is the view's el. Either of the below will work  ('this' refers to the view): \n   var $aChild = $('#viewChild',this.$el);\n   var $aChild = this.$el.find('#viewChild');\n\nHowever, Backbone supplies a simpler syntax a view can use to select its children (regardless of whether the child element or even the view itself is currently on the DOM). For this task Backbone views can use the this.$(selector) syntax. Usage is shown below (again, 'this' refers to the view).\n   var $aChild = this.$('#viewChild');\n\nNote that scoping your selectors is a good practice generally -- it's more efficient to search a small subset of elements rather than searching through all elements on a page. \n\nFor more info on this Backbone feature follow the link above.  The following SO is also useful: http://stackoverflow.com/questions/17172746/why-using-the-this-selector-method-syntax-with-backbone" ,
+	"url": "http://backbonejs.org/#View-dollar" ,
+	"type": "trap" ,
+	"tagged": false 
+ }	,
+
+ { "title": "Zombies" ,
+	"descrip": "Garbage-collected languages like JavaScript can develop memory leaks because of uncleared references to an object -- as long as your program holds a reference to an object that object can't be garbage collected.  This issue is particularly relevant to views -- when you're done with them you need to ensure they can be GC'd else you'll get 'zombie' views that result in memory leaks (and sometimes subtle bugs).\n\nUnderstanding JS GC is crucial for JS application developers. A good intro to this is Derick Bailey's post 'Backbone.js and JavaScript Garbage Collection' (see link above). His 'Zombies' post is also useful, though a bit dated -- it's from before Backbone's listenTo() method was introduced, and now for Backbone apps listenTo() is better than jQuery on() since use of listenTo() simplifies clearing your event listeners, and clearing a view's listeners when the view is removed is an important part of avoiding memory leaks -- and zombies." ,
+	"url": "http://lostechies.com/derickbailey/2012/03/19/backbone-js-and-javascript-garbage-collection/" ,
+	"type": "trap" ,
+	"tagged": false 
+ }	,
+  
+ { "title": "Setting listeners with listenTo() versus jQuery on()" ,
+	"descrip": "For DOM events Backbone views set listeners declaratively via the view's events hash. To listen for non-DOM events (e.g., events fired from a model or collection) your view should generally use Backbone view's  listenTo()  method (version 0.9.9+) rather then using jQuery's on(). Here's an example ('this' refers to the view):\n\n  this.listenTo(this.model,'change',this.render);\n\nThe advantage here is that all listeners set through listenTo() can be cleared by executing a single call to the view's stopListening() method (which is called for you when you execute Backbone view's remove() method). Note that DOM event listeners set through the view's events hash are also cleared when you run the view's remove() method (because the view el on which they're delegated is destroyed by remove()).\n\nThe reason you need to pay attention to clearing event listeners is that they can cause memory leaks (see 'Zombies' item for more on the problem of memory leaks). Using listenTo makes it easier to clear your listeners and thus easier to avoid memory leaks.\n\nBTW, you can of course still use on() if you want as long as you remember to use off() to clear all of those on() listeners when removing your view.\n\nFor more on memory leaks and use of listenTo() see the JSCT Overview doc's section on 'View removal and zombies' and especially its subsection 'Event listeners as the cause of memory leaks' (use link above)" ,
+	"url": "http://www.dlgsoftware.com/primers/JSCT_SPA_Backbone_demo_app.php#_zombies" ,
+	"type": "tip" ,
+	"tagged": false 
+ }	,
+ 
+ { "title": "Reparenting" ,
+	"descrip": "Don't try to reparent a view by simply assigning a new value to its el property, at least not if you have DOM event listeners set for that view.  That's because DOM event listeners you define through the view's events hash are delegated to the view's el. Reparenting a view requires migrating those event listeners, too.  For this task take a look at setElement(), which migrates the event listeners as well as setting your el and $el (another option is to use delegateEvents()).  For a bit more info on setElement use the link above and see its item 2.12.\n\nLATER: just discovered that tech.pro site is currently deactivated. If you find the same you can try this fallback:  http://codylindley.com/techpro/2013_09_05__part-2-backbonejs-deconstructe/" ,
+	"url": "http://tech.pro/tutorial/1476/part-2-backbonejs-deconstructed" ,
+	"type": "trap" ,
+	"tagged": false 
+ }	, 
+
+ { "title": "Using an existing DOM element for your view's el" ,
+	"descrip": "A view can use an existing DOM element for its el using normal CSS selector syntax (e.g., el: '#filterBar'). However, this has your view knowing too much about it's hosting document (tight coupling).  For more flexibility consider passing in the DOM element at runtime as a constructor parm.  Even better, let Backbone create the el for you (e.g., use the view's tagName property) and then use DOM manipulation to put the BB-created el on the DOM.\n\nIn general your life will be simpler if you lean toward letting Backbone create elements for you which you then manipulate onto the DOM.\n\nFor more on this see the JSCT Overview doc section on setting a view's el (link above)" ,
+	"url": "http://www.dlgsoftware.com/primers/JSCT_SPA_Backbone_demo_app.php#_backbone_el" ,
+	"type": "tip" ,
+	"tagged": false 
+ }	,
+ 
+ { "title": "Running remove() on a view that uses an existing DOM element" ,
+	"descrip": "A view that uses an existing DOM element for its el can give you a surprise when you run remove() on it. That's because remove() totally whacks the view's DOM element. If you intended to re-use the element, well, too bad, it's gone. There are ways to handle this, but really this is another reason to avoid using existing DOM elements for your view's el. The link above has a bit on this topic including commentary from Jeremy Ashkenas, the creator of Backbone." ,
+	"url": "https://github.com/jashkenas/backbone/issues/2834" ,
+	"type": "tip" ,
+	"tagged": false 
+ }	, 
+ 
+ { "title": "Enabling chaining after renders" ,
+	"descrip": "Render methods are usually written to return 'this' (a reference to the view). This allows chaining, letting you do things like:\n\n   $('#primaryPane').html(newPrimaryView.render().el);\n\nThe above code starts off by telling the view (a reference to which is stored in the var newPrimaryView) to render itself.  Because the render returns 'this' (also a reference to that view) the $.html call puts this.el (the rendered view's root element) into a container named #primaryPane.  Result: your rendered view becomes the content of #primaryPane." ,
+	"url": "http://backbonejs.org/#View-render" ,
+	"type": "tip" ,
+	"tagged": false 
+ }	, 
+ 
+ { "title": "Rendering off-DOM for performance" ,
+	"descrip": "Whenever possible do rendering and appends with off-DOM elements. Working with elements that are on the DOM can be a performance hit, often resulting in multiple repaints/reflows. Good example here is building up lists -- if you append <li>'s to a parent that's on the DOM you get a repaint/reflow for each append. Conversely, if that parent is off-DOM and you defer putting it onto the DOM until you've rendered/appended all those <li> children then you end up with only a single repaint/reflow when you finally put that fully-constructed list onto the DOM. \n\nBackbone assists with working off-DOM through features like the view's selector syntax this.$(selector), which works for off-DOM children, and its events hash, which lets you set event listeners on child elements not yet on the DOM (in fact it works even if the child doesn't yet exist). \n\nMore info in the JSCT Overview post section 'Rendering and working with views off-DOM' (link above)" ,
+	"url": "http://www.dlgsoftware.com/primers/JSCT_SPA_Backbone_demo_app.php#_renderingOffDOM" ,
+	"type": "tip" ,
+	"tagged": false 
+ }	,  
+ 
+ { "title": "JSJabber podcast on Backbone" ,
+	"descrip": "The JSJabber podcast on Backbone (link above) has some good Backbone and general web appdev info and as a bonus you get the interplay between Jeremy Ashkenas (Backbone, etc.) and Yehuda Katz (Ember, etc.). Note that this podcast is a bit old (2012) but its content is still useful." ,
+	"url": "https://devchat.tv/js-jabber/004-jsj-backbone-js-with-jeremy-ashkenas" ,
+	"type": "bookmark" ,
+	"tagged": false 
+ }	, 
+
+ { "title": "Cody Lindley Backbone posts" ,
+	"descrip": "Cody Lindley has 2 long posts on Backbone that are extremely useful. Lots of good detail here ranging from Backbone history to basic concepts to instructions for building a simple contacts application. Above link is to Part 1.  \n\nLATER: just discovered that tech.pro site is currently deactivated. If you find the same you can try these fallbacks: \n  http://codylindley.com/techpro/2013_07_24__part-1-backbonejs-deconstructe/\n  http://codylindley.com/techpro/2013_09_05__part-2-backbonejs-deconstructe/" ,
+	"url": "http://tech.pro/tutorial/1367/part-1-backbonejs-deconstructed" ,
+	"type": "bookmark" ,
+	"tagged": false 
+ }	, 
+
+ { "title": "Backbone patterns" ,
+	"descrip": "Rico Sta. Cruz has a page with useful info on BB patterns and best practices presented in nice docco-like format" ,
+	"url": "http://fragged.org/backbone-patterns/" ,
+	"type": "bookmark" ,
+	"tagged": false 
+ }	,
+
+ { "title": "Smashing's Backbone Tips and Patterns" ,
+	"descrip": "Phillip Whisenhunt has a Smashing post with useful Backbone tips and patterns" ,
+	"url": "http://www.smashingmagazine.com/2013/08/09/backbone-js-tips-patterns/" ,
+	"type": "bookmark" ,
+	"tagged": false 
+ }	, 
+ 
+ { "title": "Collection of Backbone resources" ,
+	"descrip": "The github 'Awesome Backbone' has a long list of Backbone resources" ,
+	"url": "https://github.com/instanceofpro/awesome-backbone" ,
+	"type": "bookmark" ,
+	"tagged": false 
+ }	, 
+ 
+ { "title": "The What and Why of Backbone" ,
+	"descrip": "If you're new to Backbone and wondering what it's all about the YouTube video link above from a 2014 Backbone conference is for you.  In this presentation Backbone's minimalist philosophy and core concepts are very clearly explained. Better still, the explainer is Jeremy Ashkenas, the creator of Backbone. BTW, he starts speaking in Spanish (the conference is in Uruguay) but if you don't habla Espanol don't touch that dial, he switches to English about a minute into the presentation.  Also useful on this topic is the Backbone FAQ (http://backbonejs.org/#faq)" ,
+	"url": "https://www.youtube.com/watch?v=UAl_N62gKmM" ,
+	"type": "bookmark" ,
+	"tagged": false 
+ }	, 
+
+ { "title": "CodeAcademy Backbone video tutorials" ,
+	"descrip": "This series of videos is a great noob resource, in part because it moves at a very leisurely pace. It starts with the 'what and why' of Backbone and then covers the fundamentals (models, collections, views, routing). \n\nOne caveat for this tutorial: while it covers the basics quite clearly it does use Backbone version 0.9.2 and so does not make use of Backbone's listenTo() method (which was introduced in 0.9.9 and is generally preferred over jQuery's on() function for setting event listeners). For more on this see the Tip on use of listenTo()" ,
+	"url": "https://www.youtube.com/watch?v=MGOHzgHJrbE&list=PLQUMc4-0pHw6_vUL1ty11EvDIgydBI_BL" ,
+	"type": "bookmark" ,
+	"tagged": false 
+ }	, 
+ 
+ { "title": "Backbone tutorial" ,
+	"descrip": "Rahul Rajat Singh has an intro to Backbone that covers the basics, all very well presented and explained." ,
+	"url": "http://www.codeproject.com/Articles/795965/BackBone-Tutorial-Part-Introduction-to-Backbone-Js" ,
+	"type": "bookmark" ,
+	"tagged": false 
+ }	,
+  
+ { "title": "JavaScript Data Explorer (JSDE) - SPA Demo App" ,
+	"descrip": "Ok, this isn't directly related to Backbone, but if you're relatively new to SPAs you might find it useful...\n\nI have another demo app called JSDE, or JavaScript Data Explorer. This demo app addresses SPA fundamentals and does not use a MV* lib like Backbone, instead implementing (and demonstrating) everything 'manually'.  If you're new to SPAs you might find it interesting.  There's also a companion doc that explains how (and why) everything is done.  Use the link above to run the JS Data Explorer demo app (note: as with JSCT it is NOT optimized - e.g., it uses a slew of <script> tags, so slow load)" ,
+	"url": "http://www.dlgsoftware.com/jsdemoapps/jsde/jsDataExplorer.html" ,
+	"type": "demoapp" ,
+	"tagged": false 
+ } 
+
+]

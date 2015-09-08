@@ -1,0 +1,1353 @@
+/* -------------------------------------------------------------------
+
+  CSS for JSCT demo app (a sample Backbone application)
+ 
+  This is the sole CSS file for JSCT. Media queries for adapting  
+  to smaller screens are grouped at the end of this file.
+  
+  As with the JS code I want this easily readable for noobs so
+  am NOT minifying the CSS (or JS) -- bottom line, this demo app 
+  is NOT optimized (cost is of course slower initial load)
+ 
+  Notes on CSS:
+  * this demo app requires modern browsers that support CSS3 and it
+    does NOT include fallbacks you'd usually put in for older browsers
+    (for example supplying a rgb() fallback for an rgba() property)
+  * lots of flexbox use here, including nesting of flexboxes.  
+    For more info on flexbox see my primer on the topic. 
+  * box-shadow is used here in numerous places, which is useful and 
+    looks nice but does have a performance cost on mobile devices
+  * like a lot of my demo app code this is fairly informal, may even 
+    still include some notes to myself (hopefully I've removed all the 
+    curse words)
+  * CSS isn't one of my strengths, so I may be doing some things
+    inefficiently here (like dup'ing some flexbox prop assignments).  
+    
+-------------------------------------------------------------------- */
+
+/* Font containing just 2 star chars created via fontawesome/fontella. Needed b/c 
+   Samsung's Touchwiz overrides the filled star char (i.e. "★" entity "\2605") */  
+@font-face {
+  font-family: 'stars';
+  src: url('fonts/stars.eot?31851158');
+  src: url('fonts/stars.eot?31851158#iefix') format('embedded-opentype'),
+       url('fonts/stars.woff?31851158') format('woff'),
+       url('fonts/stars.ttf?31851158') format('truetype'),
+       url('fonts/stars.svg?31851158#stars') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 99.4%; /* fractional height in percentage seems to work everywhere */
+	width: 100%;
+	overflow: hidden;
+}
+body {
+	font: 1em "Helvetica Neue", Helvetica, Arial, sans-serif;
+	line-height: 1.4em;
+	background: #555;
+	color: #333;
+	margin: 0 auto;
+	width: 100%;
+	max-width: 1360px;
+	overflow: hidden;
+	-webkit-font-smoothing: antialiased;
+	/* stop iOS from changing font size on phone rotation */
+	-webkit-text-size-adjust: 100%;
+}
+h1 {
+	font-size: 48px;
+	font-weight: bold;
+	text-align: center;
+	line-height: 1.4em;
+	margin: 24px 10px;
+	color: #b3b3b3;  
+	color: rgba(222, 222, 222, 0.5);
+	text-shadow: 1px 1px rgba(0, 111, 0, 0.4);
+	-webkit-text-rendering: optimizeLegibility;
+	-moz-text-rendering: optimizeLegibility;
+	-ms-text-rendering: optimizeLegibility;
+	-o-text-rendering: optimizeLegibility;
+	text-rendering: optimizeLegibility;
+}
+h2 {
+	font-size: 22px;
+	font-weight: bold;
+	font-style:italic;
+	text-align: center;
+	margin: 20px 0;
+	color: #999;
+	line-height: 1.4em;
+}
+/* deal with Android desire to highlight things that shouldn't be highlighted */
+div, section {
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+/* This outermost flexbox ensures that #main pane fills the space below the header */
+#flexboxWrapper {
+	height: 100%;
+	display: -webkit-box; /* fallbacks for older Flexbox spec */
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;	
+	display: flex;
+
+	-webkit-box-orient:vertical;  /* more old syntax, important for older mobile */
+	-moz-box-orient:vertical;
+	box-orient:vertical;
+	-ms-flex-direction: column;	
+	-webkit-flex-direction: column;
+	flex-direction: column;
+}
+header {
+/* Note: on this flexbox child we don't use a fixed ht, let it size to content. 
+   That and use of flex property on #main simplifies using jquery slide effect */
+}
+#loadingMsg {
+	position:absolute;
+	top:160px;
+	background-color:transparent;
+	width:100%;
+	text-align:center;
+}
+#loadingMsg h3 {
+	color: #4C7F4C;   
+	color: rgba(76, 127, 76, 0.6);
+	font-size:17px;
+}
+#main {
+	overflow: hidden;
+	background-color:transparent;
+	/* This is a flexbox child, so set its relative size (in this case vert size) */
+	-webkit-box-flex:1;
+	-moz-box-flex: 1;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+	/* ...and this is also a flexbox itself (i.e. a nested flexbox). However, it uses row
+	layout for side-by-side left and right panes (w/o floats!). Also fills horizontal space */
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;	
+	display: flex;
+
+	-webkit-box-orient:horizontal;
+	-moz-box-orient:horizontal;
+	box-orient:horizontal;
+	-ms-flex-direction: row;	
+	-webkit-flex-direction: row;
+	flex-direction: row;
+}
+#primaryPane, #secondaryPane {
+	background: #f4f9f4;
+	margin: 0 8px 0 8px;
+	-webkit-border-radius: 0 0 5px 5px;
+	border-radius: 0 0 5px 5px;
+	/* Needed for smooth scrolling on iDevices */
+	-webkit-overflow-scrolling:touch;
+	/* Specify how much space flexbox child should occupy -- in this case the parent flexbox lays out 
+	   horizontally so the flex values below determine relative width. Both #primaryPane, #secondaryPane
+	   start out with same value so are equal width. However, user can change this width via user option */
+	-webkit-box-flex:1;
+	-moz-box-flex: 1;
+	-ms-flex: 1;	
+	-webkit-flex: 1;
+	flex: 1;
+}
+#secondaryPane {
+	/* Default is to NOT show 2 panes (default of single pane means less work for phones).  
+	   JS will detect wider screens and switch to dualpane (if user hasn't disabled this)*/ 
+	display:none;
+}
+#primaryPane {
+	/* NOTE: more props for this container are set above -- see: #primaryPane, #secondaryPane.
+	   This pane is always visible. In singlePane layout it's the only visible pane and
+	   in dualPane layout it's the pane on the right. Width varies based on user prefs */   
+
+	/* Another nesting of flexboxes -- makes container a flexbox w/children layed out vertically */
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;	
+	display: flex;
+
+	-webkit-box-orient:vertical;
+	-moz-box-orient:vertical;
+	box-orient:vertical;
+	-ms-flex-direction: column;	
+	-webkit-flex-direction: column;
+	flex-direction: column;
+	
+	overflow:auto;	
+}
+#secondaryPane.dualPaneLeft {
+	margin-right:1px;
+	-webkit-border-radius: 0 0 0 5px;
+	border-radius: 0 0 0 5px;
+	/* Note: width can be changed by user preference in globalOptions view */
+	width:  50%;
+	overflow:hidden;
+	/* Another nested flexbox. This ensures container child (Summary view) fills vertical space.*/
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;	
+	display: -webkit-flex;
+	display: flex;
+
+	-webkit-box-orient:vertical;
+	-moz-box-orient:vertical;
+	box-orient:vertical;
+	-ms-flex-direction: column;
+	-webkit-flex-direction: column;	
+	flex-direction: column;
+}
+#primaryPane.dualPaneRight {
+	/* In an earler version that didn't use Flexbox this is where I used float:left; 
+	   but use of Flexbox is far superior, it allows easily creating side-by-side divs
+	   without floats AND lets you define relative sizes of children (incl grow-to-fill) */	
+	margin-left: 1px;
+	-webkit-border-radius: 0 0 5px 0;
+	border-radius: 0 0 5px 0;
+	/* Note: width can be changed by user preference in globalOptions view */
+	width:  50%;
+}
+.flexboxContainer {	   
+	/* Specify how much space this flexbox child should occupy */ 
+	-webkit-box-flex:1;
+	-moz-box-flex:1;
+	-ms-flex:1;	
+	-webkit-flex:1;
+	flex:1;
+	/* This flexbox child is itself a flexbox (more nested flexboxes). Its children are 
+	   layed out vertically.  This style applied to both Detail view and Summary view.
+	   Detail view uses this to vertically lay out and size its detail field containers
+	   (w/description field getting the lion's share). Summary view uses this to layout
+	   and size the codeTracks list and the footer -- list footer has a fixed height 
+	   of 28px and the list view above it will grow to fill all remaining vertical space.
+	   A similar but simpler example of this layout is demo'd in my Flexbox primer. */ 
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+ 
+	-webkit-box-orient:vertical;
+	-moz-box-orient:vertical;
+	box-orient:vertical;
+	-ms-flex-direction: column;	
+	-webkit-flex-direction: column;
+	flex-direction: column;
+
+	overflow:auto;
+}
+
+/*  === most LISTVIEW-related styles ===  */ 
+#listMain {
+	background: #f4f9f4;
+	/* this is the div into which UL/LI's are generated - the scrollable summary of items */	
+	overflow:hidden;
+	overflow-y:auto;
+	overflow-x:hidden;
+	/* This flexbox child shares its space with a footer. The footer is fixed at 28px
+	   so this listMain div will just expand to use the remaining vertical space... */ 	
+	-webkit-box-flex:1;
+	-moz-box-flex: 1;
+	-ms-flex: 1;	
+	-webkit-flex: 1;
+	flex: 1;
+}
+/* Note: valid use of !important here - this visual cue must always "win" over all other styles */  
+.browsedRowIndicator {
+	border: 2px solid rgba(0, 200, 0, .65) !important;
+	-webkit-box-shadow: inset 0px 0px 2px 4px rgba(0, 153, 0, 0.85);
+	box-shadow: inset 0px 0px 2px 4px rgba(0, 153, 0, 0.85);
+}
+.filterActiveIndicator {
+	border: 2px solid gold;
+}
+/** visuals of List view **/
+#codeTracks-list {
+	/* 42px margin bottom to account for list footer */
+	margin: 0 0 42px 0;
+	padding: 0;
+	list-style: none;
+}
+#codeTracks-list li {
+	position: relative;	
+	padding: 6px 20px 4px 0;
+	border-bottom: 2px solid #888;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+#codeTracks-list .filterActiveIndicator {
+	border: 2px solid rgba(213,208,47,1);
+}
+#codeTracks-list li.tagged {
+	color: #777777;
+	background-color: #ffffcc;
+}
+#codeTracks-list li.tagged #title {
+	font-weight:bolder;
+	color: #009900;
+}
+#codeTracks-list .detailButton {
+	position: absolute;
+	z-index:1000;
+	right: 6px;
+	top: 10px;	
+	display: inline-block;
+	cursor: pointer;
+	width: 32px;
+	height: 32px;
+	padding:5px ; 	
+	background: url(images/detailView.png) no-repeat;
+	background-position:center ; 
+}
+#codeTracks-list .detailButton:hover {
+	-webkit-box-shadow: 0 0 20px 5px rgba( 255, 255, 0, 0.3);
+	box-shadow: 0 0 20px 5px rgba( 255, 255, 0, 0.3);	
+	-webkit-border-radius:12px;
+	border-radius:12px;
+	background-color: rgba(  255, 255 , 0,  0.4);
+}
+#codeTracks-list li .codeTrackListItem {
+	overflow:hidden;
+	margin-right: 22px;
+	padding: 0 20px 0 8px;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+#codeTracks-list li .codeTrackListItem label {
+	height:100%;
+	vertical-align: top;
+	word-break: break-word; /* non-std for webkit */
+	display:inline-block;  /* needed for text-overflow:ellipsis  */
+	overflow:hidden;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+/* this is the description line in the <li> of the listView */
+#descripContainer {
+	width: 90%;
+	display:inline-block;
+	overflow:hidden;
+	white-space: nowrap;
+    padding-top: 3px;
+	margin-left: 48px;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+#title {
+	color: #006600;
+	width: 100%;
+	font-weight:bold;
+	text-overflow:ellipsis;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+#descrip {
+	font-size:.92em;
+	color: black;
+	width:100%;
+	text-overflow:ellipsis;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+/* for <li>'s honoring filter, hides rows that dont meet filter criteria  */
+.hideItem {
+	display:none;
+}
+
+/** === StatusBar (List footer) related styles === **/
+.listFooter {
+	overflow: hidden;
+	color: #555555;
+	background-color: #e5efe5;
+	height:38px;
+	border: 2px solid #BBB;
+	padding: 0 10px;
+	line-height: 37px;
+	-webkit-border-radius: 0 0 5px 5px;
+	border-radius: 0 0 5px 5px;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);	
+	/* WHOA - for months footer was sized corrently, then suddenly it changed, became 
+	   half-height, but only in Chrome desktop. Clearly Google just changed its flexbox 
+	   algorithm, so despite fixed height working before now the container is shrinking, 
+	   but oddly, so I suspect this is a bug. Solution is to explicitly kill shrinking */
+	flex-shrink:0;	
+}
+.codeTracks-status {
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+#clear-tagged {	
+	display:block ;	
+	float: right;
+	position:relative;
+	z-index:1000;
+	line-height: 20px;
+	text-decoration: none;
+	background: rgba(0, 0, 0, 0.1);
+	color: #555555;
+	font-size: 11px;
+	margin-top: 10px; 
+	margin-bottom: 8px;
+	padding: 0 10px 1px;
+	cursor: pointer;
+	-webkit-border-radius: 12px;
+	border-radius: 12px;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 0 0;
+	box-shadow: rgba(0, 0, 0, 0.2) 0 -1px 0 0;
+}
+#clear-tagged:hover {
+	background: rgba(255, 255, 0, 0.3);
+	-webkit-box-shadow: rgba(0, 0, 0, 0.3) 0 -1px 0 0;
+	box-shadow: rgba(0, 0, 0, 0.3) 0 -1px 0 0;
+}
+#clear-tagged:active {
+	position: relative;
+	top: 1px;
+}
+#codeTracks-status span {
+	font-weight: bold;
+}
+
+/** === most CodeTracksItem (the list <li>'s) related styles === **/
+#codeTracks-list li .toggle:hover {
+	-webkit-box-shadow: 2px 6px 14px 11px rgba( 255, 255, 0,  0.4);
+	box-shadow: 2px 6px 14px 11px rgba( 255, 255, 0,  0.4);
+	-webkit-border-radius:12px;
+	border-radius:12px;
+	background-color: rgba(  255, 255 , 0,  0.6);
+}
+/* this is just an anchor on which to use :after to add the content: "☆" */
+#codeTracks-list li .toggle {
+	position:absolute;
+	top:14px;
+	left:20px;
+	cursor: pointer;
+}
+#codeTracks-list li .toggle:after {
+	/*content: "☆";
+	content: "\2606" ;*/
+	line-height: 40px;
+    /* custom font to deal w/Samsung Touchwiz - more on this below (search for Touchwiz) */	
+    font-family: "stars";
+	font-style: normal;
+	font-weight: normal;
+	content: '\e801';
+	/* For safety - reset parent styles, that can break glyph codes*/
+	font-variant: normal;
+	text-transform: none;  
+
+	position: absolute;
+	top: -4px;
+	left:-12px;
+	font-size: 34px;
+	color: #9B9; 
+	padding:0 5px ;  
+	/* TODO -- just exploring, would love to make that star a bit crisper. Good SO on this:
+	   stackoverflow.com/questions/11487427/is-there-any-font-smoothing-in-google-chrome */
+	-webkit-text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-webkit-text-stroke: 1px rgba(153, 187, 153, 0.4);
+}
+#codeTracks-list li.tagged .toggle:after {
+	/*content: "★";*/
+	/*content: "\2605" ;*/	
+	font-family: "stars";
+	content: '\e800';
+	color: #66b566;
+	-webkit-text-stroke: 1px #008900;			
+}
+
+/* ==== most DETAIL VIEW-related styles ====== */
+#detailContainer {
+	margin-top: 2px;
+	padding: 0;
+
+	/* this is both a Flexbox container AND a Flexbox child */
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;	
+	display: -webkit-flex;
+	display: flex;
+
+	-webkit-box-orient:vertical;
+	-moz-box-orient:vertical;
+	box-orient:vertical;
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex-direction: column;
+
+	-webkit-box-flex:1;
+	-moz-box-flex: 1;
+	-ms-flex: 1;
+	-webkit-flex: 1;	
+	flex: 1;
+
+	overflow:auto;	
+}
+/* wrapper for flexbox - makes easy to have textArea fill remaining space 
+  (well, except for browsers that use older Flexbox syntax like iOS pre-7) */
+#detailFieldsWrapper {
+	padding-top: 10px;
+	overflow: auto;
+
+	-webkit-box-flex:1;
+	-moz-box-flex: 1;
+	-ms-flex: 1;	
+	-webkit-flex: 1;
+	flex: 1;
+
+	display: -webkit-box;
+	display: -moz-box;
+	display:  -ms-flexbox;	
+	display: -webkit-flex;
+	display: flex;
+
+	-webkit-box-orient:vertical;
+	-moz-box-orient:vertical;
+	box-orient:vertical;
+	-webkit-flex-direction: column;
+	-ms-flex-direction: column;
+	flex-direction: column;
+}
+.detailFieldContainer {
+	padding: 10px 16px;
+	min-height:56px;
+}
+/* <select> and Star controls need less vert space */
+.detailFieldContainerSmall {
+	min-height:34px;
+}
+.detailDescripContainer {
+	-webkit-box-flex:1;
+	-moz-box-flex: 1;
+	-ms-flex: 1;	
+	-webkit-flex: 1;
+	flex: 1;
+	/* min-height is workaround for browsers that use the 2009 Flexbox spec */
+	min-height:120px;
+	display: -webkit-box;
+	display: -moz-box;
+	display:  -ms-flexbox;	
+	display: -webkit-flex;
+	display: flex;
+	
+	-webkit-box-orient:vertical;
+	-moz-box-orient:vertical;
+	box-orient:vertical;
+	-ms-flex-direction: column;	
+	-webkit-flex-direction: column;
+	flex-direction: column;
+}
+/* this is the textarea that holds the description text */
+#detailDescrip {
+	resize: none; /*  no need for user ability to resize textarea */
+	/* NOTE: fallback for iPad using old 2009 Flexbox spec */   
+	height:190px;
+	min-height:100px; /* fixes Android problem with softkeyboard making textArea 1em high */
+	box-flex:1;
+	-webkit-box-flex:1;
+	-moz-box-flex: 1;
+	-webkit-flex: 1;
+	-ms-flex: 1;
+	flex: 1;
+}
+
+/* link buttons are hard to hit on some touch devices, the input field below it 
+   keeps getting the "click", so increase their spacing/positioning (the -3px) 
+   and use :after trick to increase the link's hit area  */
+#openDetailURL {
+	top:-3px;
+	position:relative ;
+	font-style:italic;
+	text-decoration:underline;
+	color:blue;
+	font-weight:normal;
+	font-size:.9em;
+	cursor: pointer;
+}
+#openDetailURL:after{
+	content:"";
+	padding: 20px 80px;  
+	position: absolute;
+	left: -5px;
+	top: -10px;
+}   
+
+/* placeholder for input fields for most modern browsers */
+*::-webkit-input-placeholder {
+ font-style: italic;
+}
+*::-moz-placeholder {
+ font-style: italic;
+}
+*:-ms-input-placeholder {
+ font-style: italic;
+}
+#detailContainer input, #detailContainer input[type="text"], textarea, #detailDescrip {
+	width: 96%;
+	font-family: inherit;
+	line-height: 1.4em;
+	/* specify font-size to deal with text-input v. textArea inconsistency on Firefox */
+	font-size: .9em;
+	border: 0;
+	outline: none;
+	padding: 6px;
+	border: 1px solid #999999;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.2) 0 1px 2px 0 inset;
+	box-shadow: rgba(0, 0, 0, 0.2) 0 1px 2px 0 inset;
+}
+#detailContainer label {
+	font-weight:bold;
+	font-size: .97em;
+	/* Deal with iPhone changing label sizes on rotation */   
+	-webkit-text-size-adjust: 100%; /* tip: avoid value of "none"!!! */
+}
+#detailType {
+	margin-left: 2px;
+}
+#detailStarLabel {
+	margin-left:10%;
+}
+#detailButtonsContainer {
+	width: 100%;
+	background-color:  #e5efe5;
+	margin-top: 2px;
+	padding: 9px 0 !important; /* just being lazy here... */
+	text-align:center;
+	border-top: 1px solid #99c199;
+	-webkit-border-radius: 0 0 5px 5px;
+	border-radius: 0 0 5px 5px;
+}
+#detailButtonsContainer Button {
+	margin: 0 16px;
+}
+#nextItemBtn { 
+	margin-right: 4px !important;
+}
+#prevItemBtn { 
+	margin-left: 4px !important;
+}
+#deleteItem {
+	-webkit-box-shadow: 0 0 1px 1px rgba(  255, 0, 0,  0.3);
+	box-shadow: 0 0 1px 1px rgba(  255, 0, 0,  0.3);
+	color: red;
+}
+.highlightButton {
+	-webkit-box-shadow: 0 0 7px 4px rgba( 0, 255, 0,  0.3);
+	box-shadow: 0 0 7px 4px rgba( 0, 255, 0,  0.3);
+	color: green;	
+	/* On iOS6 you don't get box-shadow on buttons */
+}
+
+/* ===  GLOBAL OPTION VIEW styles ===*/
+#optionsPane {
+	display:inline-block;
+	margin:auto;
+	text-align:center;
+	padding:0 12px;
+}
+#optionsPaneTitle {
+	font-size: 36px;
+	color: #b3b3b3;  
+	color: rgba(222, 222, 222, 0.5);
+	margin:36px 0 6px 2px;
+	text-shadow: 1px 1px rgba(0, 111, 0, 0.4);
+	-webkit-text-rendering: optimizeLegibility;
+	-moz-text-rendering: optimizeLegibility;
+	-ms-text-rendering: optimizeLegibility;
+	-o-text-rendering: optimizeLegibility;
+	text-rendering: optimizeLegibility;
+}
+#optionsPane h3 {
+	padding: 5px 0;
+	margin-top: 18px;
+	background-color: rgba(255, 255, 204, 0.8);
+	border: 3px solid rgba(255, 255, 204, 0.6);
+	border-radius: 16px;
+}
+#optionsPane .optionDescription {
+	color:rgb(0, 100, 0);
+	font-size:.85em;
+	margin:0 0 0 22px;
+	font-style:italic;
+}
+
+/* ===  HELP VIEW styles ===*/
+#help {
+	font: .95em "Helvetica Neue", Helvetica, Arial, sans-serif;
+	line-height: 1.3em;
+}
+#help h2 {
+	font-size: 1.3em;
+	font-weight: bold;
+	font-style:normal;
+	text-align: left;
+	margin: 10px 0 0 0;
+	color: #000;
+}
+#help h3 {
+	font-size: 1.2em;
+	margin-top:28px;
+}
+#help h4 {
+	font-size: 1em;
+	font-style:italic;
+	text-decoration:underline;
+	margin-bottom:3px;
+}
+.commentBox {
+	font-size:.9em;
+	background-color:#CCFFFF;
+	border: 1px solid green;
+	padding: 12px;
+}
+p.listLeader {
+	margin-bottom: 2px;
+}
+#help ul {
+/* bizarre problem with bullets in older Android stock, ended up needing pseudo-bullets */
+}
+#help li {
+/*margin-top: 3px ; */
+}
+p.pseudoBullet {
+	font-size:.9em;
+	margin: .1em .2in;
+	text-indent:-.2in;
+}
+.pseudoBulletContent {
+	padding-left:8px;
+}
+p.snug {
+	margin:3px 1px 3px 6px;
+}
+.codeTrackType {
+   color:#000099;
+   font-weight:bold;	
+}
+
+/* == below is a grab-bag of styles mostly for user feedback messages */
+.startText {
+	color: #b3df62;
+}
+.hiliteText {
+	color:  #006600;
+	font-weight:bold;
+	font-style:italic;
+	margin-right:8px;
+}
+.detailAddText {
+	color: #DDD ;
+	font-style:italic;
+}
+.errorText {
+	color:  white;
+	background-color:#CC0033;
+	padding: 1px 6px;
+}
+.detailMsg {
+	max-width: 300px;
+	width:80%;
+	margin: 30px auto;
+	padding: 20px 40px;
+	background-color: rgba(153,255,51,.1);
+	border: 1px solid rgba(0, 254,0,.5);	
+}
+.detailMsg h1 {
+	font-size:2em;
+}
+.detailMsgNoFilter {
+	background-color: rgba( 255,255,0,.1 );
+	border: 1px solid gold;
+}
+
+/* ////// === most COMMANDBAR-related styles === ////// */
+#commandBar {
+	position:relative;
+	white-space:nowrap;
+	background-color: #333333;
+	border: 1px groove #CCC ;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.2) 0 2px 3px 0;
+	box-shadow: rgba(0, 0, 0, 0.2) 0 2px 3px 0;
+	padding: 0 8px;
+	height:38px;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+	background: #3b3b3b; /* Old browsers */
+	background: -moz-linear-gradient(top, #3b3b3b 0%, #454545 12%, #4f4f4f 25%, #373737 39%, #222222 50%, #000000 51%, #0d0d0d 60%, #212121 76%, #161616 91%, #0f0f0f 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #3b3b3b), color-stop(12%, #454545), color-stop(25%, #4f4f4f), color-stop(39%, #373737), color-stop(50%, #222222), color-stop(51%, #000000), color-stop(60%, #0d0d0d), color-stop(76%, #212121), color-stop(91%, #161616), color-stop(100%, #0f0f0f)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #3b3b3b 0%, #454545 12%, #4f4f4f 25%, #373737 39%, #222222 50%, #000000 51%, #0d0d0d 60%, #212121 76%, #161616 91%, #0f0f0f 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #3b3b3b 0%, #454545 12%, #4f4f4f 25%, #373737 39%, #222222 50%, #000000 51%, #0d0d0d 60%, #212121 76%, #161616 91%, #0f0f0f 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #3b3b3b 0%, #454545 12%, #4f4f4f 25%, #373737 39%, #222222 50%, #000000 51%, #0d0d0d 60%, #212121 76%, #161616 91%, #0f0f0f 100%); /* IE10+ */
+	background: linear-gradient(to bottom, #3b3b3b 0%, #454545 12%, #4f4f4f 25%, #373737 39%, #222222 50%, #000000 51%, #0d0d0d 60%, #212121 76%, #161616 91%, #0f0f0f 100%); /* W3C */	
+ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3b3b3b', endColorstr='#0f0f0f', GradientType=0 ); /* IE6-9 */
+}
+
+#commandBar .home {
+	display: none;
+	padding: 0 6px 0 0;
+	margin: 0 ;
+	/* Getting this vert-aigned with the msgText required setting vertical-align to top.
+	   Without this positioning isnt consistent between browsers.  */
+	vertical-align:top;
+	position: relative;
+	/*  adding to try and deal with problem in (surprise) Android stock browser */
+	z-index:1000;
+	top:  5px;
+	left: -3px;
+	display: inline-block;
+	cursor: pointer;
+	width: 26px;
+	height: 26px;
+	background: url(images/home.png) no-repeat;
+}
+#commandBar .home:hover {
+	background-color: rgba(  255, 255 , 0,  0.3);
+	-webkit-box-shadow: 0 3px 12px 2px rgba( 255, 255, 0, 0.5);
+	box-shadow: 0 3px 12px 2px rgba( 255, 255, 0, 0.5);
+}
+/*  the next few are the global commandBar button icons on right side */
+#commandBar .toggleFilterVisible {
+	position: absolute;
+	right: 160px;
+	top: 8px;
+	display: block;
+	cursor: pointer;
+	width: 26px;
+	height: 26px;
+	background: url(images/search.png) no-repeat;
+}
+/* 'manually' match color of highlight glow - because this is non-round transparent .png */
+#commandBar .toggleFilterVisible:hover {
+	/* this image needs some special handling, a little more breathing room */
+	background-color: rgba(  255, 255 , 0,  0.4);
+	-webkit-box-shadow: 0 0 16px 4px rgba( 255, 255, 0,  0.6);
+	box-shadow: 0 0 16px 4px rgba( 255, 255, 0,  0.6);
+	-webkit-border-radius:10px;
+	border-radius:10px;
+}
+#commandBar .globalOptions {
+	position: absolute;
+	right: 115px;
+	top: 7px;
+	display: block;
+	cursor: pointer;
+	width: 26px;
+	height: 26px;
+	background: url(images/options.png) no-repeat;
+}
+/* 'manually' match color of highlight glow - because this is non-round transparent .png */
+#commandBar .globalOptions:hover {
+	background-color: rgba(  255, 255 , 0,  0.2);
+}
+#commandBar .addNew {
+	position: absolute;
+	right: 65px;
+	top: 7px;
+	display: block;
+	cursor: pointer;
+	width: 26px;
+	height: 26px;
+	background: url(images/add.png) no-repeat;
+}
+#commandBar .help {
+	position: absolute;
+	right: 15px;
+	top: 7px;
+	display: block;
+	cursor: pointer;
+	width: 26px;
+	height: 26px;
+	background: url(images/help.png) no-repeat;
+}
+#msgLine {
+	color:white;
+	margin: 0 160px 0 0;
+	/* to center msgText in the commandBar set line-height to commandBar height */
+	line-height:38px;
+	display:inline-block;
+	max-width: 75%;
+	text-overflow:ellipsis;
+	/* very important that command bar has these next two */
+	overflow:hidden;
+	white-space:nowrap;
+}
+.commandButton:hover {
+	-webkit-box-shadow: 0 0 20px 5px rgba( 255, 255, 0, 0.7);
+	box-shadow: 0 0 20px 5px rgba( 255, 255, 0, 0.7);
+	-webkit-border-radius:12px;
+	border-radius:12px;
+	background-color: rgba(  255, 255 , 0,  0.5);
+}
+
+/*  === FilterBar-related styles === */
+#filterBar {
+	display:none;
+	position:relative;
+	text-align:center;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+#filterContainer {
+	background-color: #e5efe5;
+	padding:3px 1px 6px 1px;
+	margin: 1px 4px 0 3px;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.2) 0 3px 3px 0 inset;
+	box-shadow: rgba(0, 0, 0, 0.2) 0 3px 3px 0 inset;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+#filterFeedback {
+	margin-left:50px;
+}
+.filterLabel {
+	font-size:.9em;
+	margin-left:6px;
+}
+#filterText {
+	width: 240px;
+	margin-left: 0;
+	margin-right: 16px;
+	font-family: inherit;
+	line-height: 1.4em;
+	outline: none;
+	padding: 2px 6px;
+	border: 1px solid #999999;
+	-webkit-box-shadow: rgba(0, 0, 0, 0.2) 0 1px 2px 0 inset;
+	box-shadow: rgba(0, 0, 0, 0.2) 0 1px 2px 0 inset;
+}
+#filterType {
+	margin-right:20px;
+}
+#filterStarWrapper {
+	display:inline-block;
+	position:relative;
+	height:100%;
+	padding-left:6px;
+	margin-left:2px ;
+	margin-right:1px;
+	overflow:visible;
+	/* below inhibits text selection which looks ugly, very un-application-like  */
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	-webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+#filterStar, #detailStar {
+	display:inline-block;
+	position:relative;
+	cursor: pointer;
+	top:4px;
+	width: 32px;
+	height: 32px;
+	color:#666D03;
+	font-weight:bold;
+	font-size:36px;
+}
+#filterStar:hover, #detailStar:hover {
+	-webkit-box-shadow: -6px 0 2px 2px rgba( 255, 255, 0,  0.35);
+	box-shadow: -6px 0 2px 2px rgba( 255, 255, 0,  0.35);
+	-webkit-border-radius:14px;
+	border-radius:14px;
+	background-color: rgba(  255, 255 , 0,  0.35);
+}
+#filterStar:after, #detailStar:after {
+	/*content: "☆";*/
+	/*content: "\2606" ; -> char entity for star a no-go thanks to Samsung's
+	  idiotic Touchwiz, had to switch to using a font-face with icon fonts */
+	font-family: "stars";
+	font-style: normal;
+	font-weight: normal;
+	content: '\e801';
+	/* For safety - reset parent styles, that can break glyph codes*/
+	font-variant: normal;
+	text-transform: none;  
+	
+	font-size: 32px;
+	top: 3px;
+	left:-3px;
+	position: absolute;
+	padding-right:6px;   
+	
+	color: #9B9;  
+	-webkit-text-rendering: optimizeLegibility; 
+	-webkit-font-smoothing: antialiased;
+	-webkit-text-stroke: 1px rgba(153, 187, 153, 0.4);
+}
+#filterStar.selected:after, #detailStar.selected:after {	
+/* why does Samsung modify Android including browser UI with its cartoonish Touchwiz? 
+   In browser it's substituting a completely different (and larger) filled star character so 
+   to resolve had to create font subset w/stars, see font-face note at top. On this Touchwiz issue:
+   stackoverflow.com/questions/25566195/css-style-color-uneffective-on-star-character-9733-on-samsung-with-android */
+  /*content: "★";*/   
+  /*font-family:"Times New Roman", Times, serif ;
+  content: "\2605" ;*/	
+	font-family: "stars";
+	font-style: normal;
+	font-weight: normal;
+ 	content: '\e800';	
+	color: #009900;
+	color: rgba(0, 153, 0, 0.5);  
+	-webkit-text-stroke: 1px #008900;
+}
+#filterStar.selected:after {	
+	/*  use shadow below to simlulate -webkit-text-stroke on non-webkit, want the
+	    orange in all browsers as a visual cue that this star relates to filter */	
+	-webkit-text-stroke: initial;
+	text-shadow:
+    	-1px -1px 0 gold,  
+    	1px -1px 0 gold,
+    	-1px 1px 0 gold,
+    	1px 1px 0 gold;
+	color: rgba(0, 153, 0, 0.7);
+}
+#clearFilter {
+	margin-left:20px;
+	margin-right:20px;
+}
+
+/* JUST EXPLORING HERE, trying to add some stronger visual cue to command button taps -- see 
+ also appController.js touchstart and touchend listeners that "depress" the iconButton on tap */
+.mobileTapFeedback {  
+	background-color: rgba(  255, 255, 0,  0.5) !important;
+	-webkit-border-radius:10px !important;
+	border-radius:10px  !important;
+	-webkit-box-shadow: 0 0 16px 4px rgba( 255, 255, 0,  0.7) !important;
+	box-shadow: 0 0 16px 4px rgba( 255, 255, 0,  0.7) !important;
+}
+
+
+/*********************************************************************
+ Remainder of this CSS just some simple (and crude) responsive design, 
+ mostly focused on adjusting view contents to fit in narrowing widths.
+**********************************************************************/
+/* most of these MQ's trigger on width, but these first 2 trigger on height  */
+@media only screen and (max-height:700px) {
+  #optionsPaneTitle {
+	  font-size:32px;
+  }
+  /* Below: use :after trick to increase touch hit area of anchor buttons
+     - on Android 2.x these link buttons are especially hard to "click" */
+  #commandBar .home:after{
+	  content:"";
+	  padding: 22px 26px;  
+	  position: absolute;
+	  left: -15px;
+	  top: -15px;
+  }   
+  #clear-tagged:after{
+	  content:"";
+	  padding: 20px 45px;  
+	  position: absolute;
+	  left: -15px;
+	  top: -15px;
+  }  
+  #codeTracks-list li .toggle:after {
+	top: -9px;
+	left:-15px;
+	padding: 6px ;
+  }
+}
+@media only screen and (max-height:600px) {
+  /* smaller screen so use all available height now */
+  html, body {
+	height:100%;
+  }
+  h1 {
+	  font-size: 36px;
+	  color: rgba(0, 102, 51, 0.4);
+  }
+  h2 {
+	  color:#888;
+	  font-size: 22px;
+  }
+  h3 {
+	  font-size: 16px;
+  }
+  #primaryPane, #secondaryPane {
+	  margin:0;
+	  -webkit-border-radius: 2px;
+	  border-radius: 2px;
+  }
+  #filterContainer {
+	  margin:0;
+  }
+  #filterType {
+	  margin-right: 14px;
+  }
+  #clearFilter {
+	  margin-left: 14px;
+	  margin-right: 10px;
+  }
+  #optionsPaneTitle {
+	  display:none;
+  }
+  #optionsPane h3 {
+	  padding-top:8px;
+  }
+  #detailTitleLabel {
+	  display:none;
+  }
+  .detailFieldContainer {
+	  min-height:50px;
+  }
+  .detailFieldContainerSmall {
+	  min-height:32px;
+  }
+  .detailTitleContainer {
+	  min-height:26px !important;
+  }
+}
+
+@media only screen and (max-width:700px) {
+  #filterText {
+	  width:220px;
+  }
+  /* Below: use :after trick to increase touch hit area of anchor buttons
+     - on Android 2.x these link buttons are especially hard to "click" */
+  #commandBar .home:after{
+	  content:"";
+	  padding: 22px 26px;  
+	  position: absolute;
+	  left: -15px;
+	  top: -15px;
+  }   
+  #clear-tagged:after{
+	  content:"";
+	  padding: 20px 45px;  
+	  position: absolute;
+	  left: -15px;
+	  top: -15px;
+  } 
+  #codeTracks-list li .toggle:after {
+	top: -9px;
+	left:-15px;
+	padding: 6px ;
+  }
+}
+
+/* At 600px make app fill screen, no top/side/bottom gaps, more like a mobile app */
+@media only screen and (max-width:600px) {
+  html, body {
+	  height:100%;
+  }
+  #primaryPane, #secondaryPane {
+	  margin:0;
+	  -webkit-border-radius: 2px;
+	  border-radius: 2px;
+  }  
+  #commandBar {
+	  margin-top:0;
+  }
+  #filterText {
+	  width:220px;
+  }
+  .filterLabel {
+	  display:none;
+  }
+  #primaryPane {
+	  margin:0;
+  }
+  #filterContainer {
+	  margin:0;
+  }
+  #filterType {
+	  margin-right: 14px;
+  }
+  #clearFilter {
+	  margin-left: 14px;
+	  margin-right: 10px;
+  }
+}
+
+@media only screen and (max-width:500px) {
+  #filterText {
+	  width: 135px;
+  }
+  #clearFilter {
+	  margin-left:12px;
+	  margin-right:1px;
+  }
+  #detailButtonsContainer Button {
+	  margin: 0 12px; 
+  }        
+}
+
+/* use device-width to try to limit this tweak to small-screen high-DPI devices */
+@media only screen and (max-device-width:740px) {
+  /* make filter-is-active visual cue a bit more apparent on phones */
+  .filterActiveIndicator {
+	  border: 3px solid gold; /* increased from 2px */
+  }
+}
+
+@media only screen and (max-width:400px) {
+  #jsctAbbr {
+	  display:none;
+  }
+  #msgLine {
+	  margin-left: 0;
+  }
+  #commandBar {
+	  margin-top:0;
+  }
+  #filterContainer {
+	  font-size: .82em;
+	  padding: 1px ;
+  }
+  #filterStar:after {
+	 top: 5px; /* to keep vert-centered in resized container */ 
+  }
+  #filterText {
+	  width: 84px;
+	  margin: 11px 12px 10px 0;
+	  padding: 1px 2px;
+  }
+  #filterType {
+	  margin-right:8px;
+	  font-size: .98em;
+  }
+  #clearFilter {
+	  margin-left:6px;
+	  margin-right:-2px;
+  }
+  #detailType {
+	  font-size: .94em;
+  }
+  #detailStar:after {
+	  left: -8px;
+  }
+  #detailFieldsWrapper {
+	  padding-left:0;
+  }
+  #detailStarLabel {
+	  margin-left:10px;
+  }
+  #detailButtonsContainer {
+	  padding: 7px 0 14px 0 !important;
+  }
+  /* reduce padding to avoid button wrapping on iPhone */
+  #detailButtonsContainer Button {
+	  margin: 0 8px; 
+  }
+  #prevItemBtn { 
+      margin: 0 4px 0 0  !important ;
+	  font-weight:bold;
+  }
+  #nextItemBtn { 
+      margin: 0 0 0 4px !important ;
+	  font-weight:bold;
+  }
+  .listFooter {
+	  height:30px;
+	  line-height: 30px;
+  }
+  #clear-tagged {
+	  margin: 6px 0;
+  }
+}
+
+
+@media only screen and (max-width:340px) {
+  #filterText {
+	  width: 88px;
+	  margin: 11px 5px 10px 0;
+	  padding: 1px 2px 1px 4px ;
+	  font-size: .98em;	 
+	  line-height:1.3; 
+  }
+  #filterType {
+	  margin-right:4px;
+	  font-size: .98em;
+  }		
+}
+ 
+/* For portrait layouts only - */
+/* pure kludge here, for older iPads that use the old 2009 Flexbox specification
+   I can't get descrip container to fill available space, so force workable height */
+@media only screen and (min-device-width: 481px) and (max-device-width: 1024px) and (orientation:portrait) {
+  #detailDescrip {
+	  height:440px;
+  }  
+  #jsctAbbr {
+	  display:none;
+  }
+}
+
+/* Hacks for iPad problems by targeting the iOS widths, */
+@media only screen and (device-width: 768px), 
+       only screen and (device-width: 320px) {
+  /* Hack for iOS problems with padding, skewing <li> so isn't vert centered */
+  #codeTracks-list li {
+	padding: 6px 20px 10px 0;
+  }
+  
+  /* #detailButtonsContainer Button {
+	 TESTING - trying to get box-shadow on iOS -- this works but 
+	it also whacks -webkit-appearance:button, which is a show stopper 
+	border-radius:10px ;  
+}*/  
+  
+}
+
+/* Originally was suppressing hover highlight only on iPad b/c of bizarre iOS behavior 
+   when :hover used on <li>'s but later decided to select by dpi to catch more mobiles. 
+   Trying to suppress hover highlight on most mobile, use yellow tap-highlight instead. 
+   BUT not working on older iPads and some Android (mostly older Samsung) that have
+   1:1 px ratio. For those older devices am still seeing some hover highlights */
+/* NOTE: this condition should catch mostly mobile, which generally has higher pixel 
+   density than desktops, BUT not older mobiles like Moto Xoom, iPad 1 and 2, etc.) */
+@media only screen and (-webkit-min-device-pixel-ratio: 1.25) and (max-device-width: 1024px),
+       only screen and (min-device-pixel-ratio: 1.25) and (max-device-width: 1024px), 
+	   only screen and (min-resolution: 1.25dppx) and (max-device-width: 1024px),
+       only screen and (min-resolution: 120dpi) and (max-device-width: 1024px) {
+		
+  #commandBar .globalOptions:hover, 
+  #commandBar .toggleFilterVisible:hover,
+  #commandBar .addNew:hover,
+  #commandBar .home:hover,
+  #commandBar .help:hover {
+	  -webkit-box-shadow: none ; 
+	  box-shadow: none ;	
+	  background-color: inherit  ; 
+	  -webkit-tap-highlight-color:rgba(0,0,0,0); /*initial ;*/
+  }
+  
+  #commandBar .globalOptions, 
+  #commandBar .toggleFilterVisible,
+  #commandBar .addNew,
+  #commandBar .home,
+  #commandBar .help {
+	  -webkit-tap-highlight-color: rgba( 255, 255, 0, 0.5);
+  }
+
+  #codeTracks-list .detailButton:hover , #codeTracks-list li .toggle:hover ,
+    #filterStar:hover, #filterStar.selected:hover,  #detailStar:hover {
+	-webkit-box-shadow: none ; 
+	box-shadow: none ;	
+	background-color: inherit  ; 
+  }
+  
+  /* nope, don't want this, will effectively restore mobile's whacky presistent
+   :hover highlighting I want to kill - :hover good for desktop, not for mobile
+  #codeTracks-list .detailButton , #codeTracks-list li .toggle ,
+    #filterStar, #detailStar {
+	-webkit-tap-highlight-color: rgba( 255, 255, 0, 0.5) ; 
+  } */
+       
+}
+
+
+/* (RANT) again targeting frigging iPhone, descrip textArea disappearing after  
+    phone rotation, but intermittent, not seeing the pattern yet. LATER: nope,
+	this problem is still outstanding, still need to debug this. */
+@media only screen  and (device-width: 320px) and (orientation:landscape) {  
+  #detailFieldsWrapper {
+	  padding-top:0;
+  }   
+  #detailDescripContainer label {
+	display: none ;  	  
+  } 
+}

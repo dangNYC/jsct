@@ -1,0 +1,19 @@
+### - - - - - - - - - - - - - - 
+### TOME: CAREFUL this is just a quick draft, need to validate syntax!!!
+### - - - - - - - - - - - - - - 
+
+# demo is mostly using CDNs so skip all but localstorage
+js/lib/*
+!js/lib/backbone.localStorage.js
+
+# No need for node mods here
+node_modules/
+
+# various dev files
+jsbeautifyTest/
+.jsbeautifyrc
+gruntfile.js
+package.json
+jshint.xml
+
+~*.*

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>JSCT - Backbone sample application - demos Backbone / SPA fundamentals</title>
+<meta name="description" content="Javascript single page application (SPA) that demos Backbone basics including use of Backbone Model, View, Router, more">
+<!-- Disable page autoscaling. Also disable (w/max-scale) auto-zoom occuring on mobile -->
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<link rel="stylesheet" href="css/jsct.css"/>
+</head>
+<body>
+<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@<  HEADS UP!  >@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
+<!--  This demo app is intentionally *NOT* optimized, clarity wins over performance, -->
+<!--  so no minification or concatenation (for my own code), lots of <script> tags,  -->
+<!--  and tons of comments. All of this is to make the code more readable for noobs. -->
+<div id="flexboxWrapper"> <!-- using flexbox to fill remaining vert space below header -->
+  <header> 
+    <!-- Markup in this header is for app-global views that are instantiated just once --> 
+    <!-- and persist for the life of the app (you don't always have to use templates). --> 
+    <!-- Obviously this approach has costs/benefits - see JSCT Overview post re this.  -->
+    <div id="commandBar"> 
+      <!-- use inline display:none here to suppress flash of inactive iconButtons at startup --> 
+      <a id="cbHome" class="commandButton home" href="#" style="display:none" title="Go to list view"> </a>
+      <label id="msgLine"></label>
+      <a id="cbFilter" class="commandButton toggleFilterVisible" style="display:none" title="Hide/show filter pane"></a> 
+      <a id="cbOptions" class="commandButton globalOptions" href="#options" style="display:none" title="Global options"></a> 
+      <a id="cbNew" class="commandButton addNew" href="#new" style="display:none" title="Add an item"></a> 
+      <a id="cbHelp" class="commandButton help" href="#help" title="Help"></a> 
+    </div>
+    <div id="filterBar"> 
+      <!--all of filterBar markup is here so it uses no template -->
+      <fieldset id="filterContainer">
+        <label class="filterLabel">Text:</label>
+        <input id="filterText" type="text" autocomplete="off" 
+                  placeholder="enter filter text for title and description..."/>
+        <label class="filterLabel">Type:</label>
+        <select id="filterType" autocomplete="off" >
+          <option  selected="selected" value="">All</option>
+          <option value="tip"  title="smart coding practices, shortcuts, etc.">Tip</option>
+          <option value="trap" title="dumb coding practices, gotchas, etc.">Trap</option>
+          <option value="bookmark" title="functionally the same as a browser bookmark">Bookmark</option>
+          <option value="demoapp" title="specialized bookmark - for live demo of features, techniques, etc.">Demo app</option>
+          <option value="other" title="catchall (future: allow user-defined categories)">Other</option>
+        </select>
+        <div id="filterStarWrapper"> 
+           <a id="filterStar"  title="toggle display of 'star' marked items">&nbsp;</a> 
+        </div>
+        <button id="clearFilter">Clear</button>
+      </fieldset>
+    </div>
+  </header>
+  
+  <div id="main"> 
+    <!--Divs #primaryPane and #secondaryPane are where the app's main views are parented -->
+    <div id="secondaryPane"></div>
+    <div id="primaryPane"></div>
+  </div>
+  
+  <div id="loadingMsg" 
+      style="position:absolute;top:110px;background-color:transparent;width:100%"> 
+    <!-- loadingMsg visible during app load, cleared by appController when page fully loaded -->
+    <h1 style="margin:auto;">Loading...</h1>
+    <h3>This demo app is NOT optimized!</h3>
+    <h3 style="margin-top:-12px">(so, slow load especially on mobile)</h3>
+  </div>
+</div>
+
+<!-- *************  SCRIPT BLOCKS FOR UNDERSCORE TEMPLATES ************ --> 
+<!-- Templates are embedded in this .html for simplicity - --> 
+<script type="text/template" id="summary-template">
+  <div id="listMain" >
+      <!-- a CodeTrackList instance is injected into this div element -->
+  </div>   
+  <div id="listFooter" class=listFooter >
+      <!-- a StatusBar instance is injected here to serve as a list footer -->
+  </div>
+</script>
+ 
+<script type="text/template" id="status-template"> 
+  <div class="codeTracks-status">
+    <b><%= total %></b> <%= total == 1 ? 'item' : 'items' %> 
+    <% if (meetsFilter >= 0) { %>
+       (<b><%= meetsFilter %></b> <%= meetsFilter == 1 ? 'matches' : 'match' %> filter)
+    <% } %>
+    <% if (tagged) { %>
+      <a id="clear-tagged">Clear <%= tagged %>  <%= tagged == 1 ? 'tag' : 'tags' %> </a>
+    <% } %>
+  </div> 
+</script> 
+     
+<script type="text/template" id="listItem-template">
+<!-- The div's ID attrib is set to BB model's ID. This simplifies scrolling to the 'active'
+     model's list item. For demo purpses it's also assigned to data-id on anchor button --> 
+  <div id="ct-<%= id %>" class="codeTrackListItem">  
+    <!-- note: &nbsp needed as anchor content else iPad positions :after content incorrectly --> 
+    <a class="toggle" title="tag this item">&nbsp;</a>      
+    <div id="descripContainer"> 
+       <label id="title"><%- title %></label>   
+       <br/>  
+       <label id="descrip"><%- descrip %></label> 
+    </div>
+    <!-- The data-id attribute isn't currently used, included as example of a -->
+    <!-- way to easily link event w/model, useful for click event delegation. -->    
+    <a class="detailButton" title="show in Detail view" data-id=<%= id %>></a>      
+  </div>
+</script>
+ 
+<script type="text/template" id="globalOptions-template">
+   <div style="text-align:center">
+      <div id="optionsPane">
+          <h2 id="optionsPaneTitle">Global Options&nbsp;</h2>
+          <h3>Layout and Appearance</h3>
+          <label><input id="optionsUseDualPane" type="checkbox"/>use 2 side-by-side panes</label>
+          <p class=optionDescription>not applicable to small screens</p>
+          
+          <p  style="margin-bottom:0">Side-by-side panes relative size</p>
+          <p class=optionDescription style="margin-left:3px">sets width of the left pane in percent</p>
+
+          <button id="dualPaneSplitPreset30" class=dualPanePreset data-value="3" style="margin:8px 0 0 26px" 
+               title="move splitter location to 30% from left/top">30%</button>  
+          <button id="dualPaneSplitPreset50" class=dualPanePreset data-value="5" style="margin:0 24px"  
+               title="move splitter location to 50% from left/top">50%</button>  
+          <button id="dualPaneSplitPreset70" class=dualPanePreset data-value="7"
+               title="move splitter location to 70% from left/top">70%</button>    
+          <br/><br/>
+          <h3>Developer diagnostics</h3>
+          <label><input id="optionsShowDiagnostics" type="checkbox"/>Display diagnostics in console</label>
+          <p class=optionDescription>logs info on internal processes</p>    
+          <br/>
+      </div> 
+   </div>
+</script>
+ 
+<script type="text/template" id="detail-template"> 
+   <!-- form-like detail view of a model item. HTML form isn't used because there's
+       no need - gathering and sending data to server is done through JS/Backbone -->
+   <div id="detailContainer"> 
+       <div id="detailFieldsWrapper">
+          <div class="detailFieldContainer  detailTitleContainer">
+            <label id="detailTitleLabel">Title</label>             
+            <input id="detailTitle" type="text"  value="<%- detailData.title %>"  placeholder="Enter short name"/>
+          </div>  
+          <div class="detailFieldContainer detailFieldContainerSmall">     
+              <label>Type:</label>
+              <select id="detailType" autocomplete="off"  >
+                  <option value="tip"  title="smart coding practices, shortcuts, etc.">Tip</option>
+                  <option value="trap" title="dumb coding practices, gotchas, etc.">Trap</option>
+                  <option value="bookmark" title="functionally the same as a browser bookmark">Bookmark</option>   
+                  <option value="demoapp" title="specialized bookmark - for live demo of features, techniques, etc.">Demo app</option> 
+                  <option value="other" title="catchall (future: allow user-defined categories)">Other</option>
+              </select> 
+              <label id="detailStarLabel">Tagged: &nbsp; 
+                    <a id="detailStar" <% if (detailData.tagged) { %>  class="selected"  <% } %>
+                       title="toggle display of 'star' marked items">&nbsp;</a>  
+              </label> 
+            </div>
+            <div class="detailFieldContainer">
+              <label>URL &nbsp;<a id="openDetailURL">open link in new window</a></label>
+              <input id="detailURL" type="url" value="<%- detailData.url %>"  placeholder="Enter URL"/>
+            </div> 
+            <!-- give this one an id so we can vary its height based on available space -->
+            <div id="detailDescripContainer" class="detailFieldContainer detailDescripContainer">
+              <label>Description</label>
+              <textarea id="detailDescrip" type="text" spellcheck='false' placeholder="Enter description"><%- detailData.descrip %></textarea>
+            </div>  
+       </div>
+       <div id="detailButtonsContainer">
+          <button id="prevItemBtn" class="detailEdit">&#9650;</button>   
+          <button id="listViewBtn">List</button>
+          <button id="deleteItem" class="detailEdit">Delete</button>
+          <button id="addNewItem" class="detailAddNew detailSave">Add</button>
+          <button id="saveItem" class="detailEdit detailSave">Save</button> 
+          <button id="nextItemBtn" class="detailEdit">&#9660;</button> 
+       </div>
+    </div>    
+</script>
+ 
+<!-- **************  "REAL" SCRIPT BLOCKS  **************** --> 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script> 
+<script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.2.1/backbone-min.js"></script> 
+<script src="js/lib/backbone.localStorage.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.min.js"></script>  
+<!-- BELOW: JSCT-specific code intentionally *not* optimized (e.g. these files aren't  
+     concatenated or minified) in order to make them more easily accessible/readable 
+     to noobs (e.g. in devtools Sources view the app's dir structure is still visible) --> 
+<script src="js/models/codeTrack.js"></script> 
+<script src="js/collections/codeTrackCollection.js"></script> 
+<script src="js/models/application.js"></script> 
+<script src="js/views/commandBar.js"></script> 
+<script src="js/views/filterBar.js"></script> 
+<script src="js/views/summary.js"></script> 
+<script src="js/views/codeTrackList.js"></script> 
+<script src="js/views/codeTrackListItem.js"></script>
+<script src="js/views/statusBar.js"></script>  
+<script src="js/views/detail.js"></script> 
+<script src="js/views/help.js"></script> 
+<script src="js/views/globalOptions.js"></script> 
+<script src="js/routers/router.js"></script> 
+<script src="js/appController.js"></script>
+</body>
+</html>
